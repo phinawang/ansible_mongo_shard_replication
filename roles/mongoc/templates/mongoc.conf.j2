@@ -1,0 +1,38 @@
+storage:
+    dbPath: {{ mongodb_datadir_prefix }}
+    directoryPerDB: true
+    journal:
+        enabled: true
+    engine: "wiredTiger"
+    wiredTiger:
+        engineConfig:
+            journalCompressor: zlib
+        collectionConfig:
+            blockCompressor: zlib
+        indexConfig:
+            prefixCompression: true
+
+systemLog:
+    logRotate: rename
+    destination: file
+    path: {{ mongodb_logdir_prefix }}mongod.log
+    logAppend: true
+    timeStampFormat: iso8601-utc
+
+processManagement:
+    pidFilePath: {{ mongodb_piddir_prefix }}mongod.pid
+    fork: true
+
+net:
+    port: 27017
+    unixDomainSocket:
+        enabled : true
+    maxIncomingConnections: 10240
+    bindIp: 0.0.0.0
+
+
+sharding:
+  clusterRole: configsvr
+
+replication:
+  replSetName: mongoc

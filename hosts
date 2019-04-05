@@ -1,0 +1,17 @@
+[mongo_servers_shard1_replication]
+host-d01                                          ansible_ssh_host=host-d01                          ansible_ssh_port=22     ansible_ssh_user=XXXX     ansible_ssh_pass=XXXXX     mongod_port=27017
+host-d02                                          ansible_ssh_host=host-d02                          ansible_ssh_port=22     ansible_ssh_user=XXXX     ansible_ssh_pass=XXXXX     mongod_port=27017
+host-d03                                          ansible_ssh_host=host-d03                          ansible_ssh_port=22     ansible_ssh_user=XXXX     ansible_ssh_pass=XXXXX     mongod_port=27017 
+
+[mongo_servers_shard2_replication]
+host-d04                                          ansible_ssh_host=host-d04                          ansible_ssh_port=22     ansible_ssh_user=XXXX     ansible_ssh_pass=XXXXX     mongod_port=27017
+host-d05                                          ansible_ssh_host=host-d05                          ansible_ssh_port=22     ansible_ssh_user=XXXX     ansible_ssh_pass=XXXXX     mongod_port=27017
+host-d06                                          ansible_ssh_host=host-d06                          ansible_ssh_port=22     ansible_ssh_user=XXXX     ansible_ssh_pass=XXXXX     mongod_port=27017
+
+[mongoc_servers]
+host-c01                                          ansible_ssh_host=host-c01                         ansible_ssh_port=22     ansible_ssh_user=XXXX     ansible_ssh_pass=XXXXX
+host-c02                                          ansible_ssh_host=host-c02                          ansible_ssh_port=22     ansible_ssh_user=XXXX     ansible_ssh_pass=XXXXX
+host-c03                                          ansible_ssh_host=host-c03                          ansible_ssh_port=22     ansible_ssh_user=XXXX     ansible_ssh_pass=XXXXX
+
+[mongos_servers]
+host-s01                                          ansible_ssh_host=host-s01                          ansible_ssh_port=22     ansible_ssh_user=XXXX     ansible_ssh_pass=XXXXX

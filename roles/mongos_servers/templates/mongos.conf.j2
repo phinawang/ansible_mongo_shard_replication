@@ -1,0 +1,30 @@
+systemLog:
+  logRotate: rename
+  destination: file
+  path: {{ mongodb_logdir_prefix }}mongod.log
+  logAppend: true
+  timeStampFormat: iso8601-utc
+
+# fork and run in background
+processManagement:
+   fork: true
+   pidFilePath: {{mongodb_piddir_prefix }}mongod.pid
+
+net:
+  port: {{ mongos_port }}
+  maxIncomingConnections: 10240
+
+sharding:
+{% set hosts = '' %}
+{% for host in groups['mongoc_servers'] %}
+{% if loop.last %}
+{% set hosts = hosts + host + ':' ~ mongoc_port  %}
+  configDB: mongoc/{{ hosts }}
+{% else %}
+{% set hosts = hosts + host + ':' ~ mongoc_port + ','  %}
+{% endif %}
+{% endfor %}
+  #chunkSize: {{ mongos_chunk_size }}
+
+# location of pidfile
+#keyFile={{ mongodb_datadir_prefix }}/mongodb.key

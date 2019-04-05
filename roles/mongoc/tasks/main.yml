@@ -1,0 +1,24 @@
+---
+# This playbook  deploys the mongodb configurationdb  servers
+
+
+#- name: Create the mongodb startup file
+#  template: src=mongoc.service dest=/etc/systemd/system/mongoc.service mode=0644 seuser=system_u
+
+- name: Create the mongodb configuration file
+  template: src=mongoc.conf.j2 dest=/etc/mongod.conf
+
+- name: Pause for a while
+  pause: seconds=10
+
+- name: Create the file to initialize the mongod replica set
+  template: src=mongoc_init.js.j2 dest=/tmp/mongoc_init.js mode=0655
+
+- name: Pause for a while
+  pause: seconds=10
+
+- name: restart mongod
+  command: service mongod restart
+
+- name: Initialize the rconfig server replication set
+  shell: /usr/bin/mongo "localhost:{{ mongoc_port }}/admin" /tmp/mongoc_init.js

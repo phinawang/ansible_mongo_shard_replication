@@ -1,0 +1,11 @@
+rs.initiate({
+	   _id : "SH1",
+	   members:[
+		{% for host in groups['mongo_servers_shard1_replication'] %}
+			{ _id: {{ loop.index0 }}, host : "{{ host }}:{{ mongod_port }}" }{% if not loop.last %},{% endif %}
+		{% endfor %}
+	   ]
+	})
+sleep(13000)
+
+printjson(rs.status())

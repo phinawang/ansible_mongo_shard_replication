@@ -1,0 +1,36 @@
+# The global variable file mongodb installation
+
+mongodb_version: 3.6.11
+
+# The chunksize for shards in MB
+mongos_chunk_size: 256
+
+# The port in which mongos server should listen on 
+mongos_port: 27017
+
+# The port for mongo config server
+mongoc_port: 27017
+
+# The directory prefix where the database files would be stored
+mongodb_datadir_prefix: /data/db/
+
+# The directory prefix where the log files would be stored
+mongodb_logdir_prefix: /var/log/mongodb/
+
+# The directory prefix where the mongod.pid files would be stored
+mongodb_piddir_prefix: /var/run/mongodb/
+
+# The interface where the mongodb process should listen on.
+# Defaults to the first interface. Change this to:
+# 
+#  iface: eth1
+#
+# ...to override.
+# 
+iface: '{{ ansible_default_ipv4.interface }}'
+
+# The password for admin user
+mongo_admin_pass: XXXXX
+
+max_incoming_connections: 10240
+

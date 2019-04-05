@@ -1,0 +1,111 @@
+---
+
+# This Playbook runs all the common plays in the deployment
+
+#- name: Create the repository for ali mirror for China area
+#  copy: src=Centos-ali.repo dest=/etc/yum.repos.d/CentOS-Base.repo
+#
+#- name: Refresh repository cache
+#  shell: yum clean all && yum makecache
+
+#- name: Install the epel-release package
+#  yum: name=epel-release state=present
+
+- name: set logrotate
+  copy:
+    src: mongodb.logrotate
+    dest: /etc/logrotate.d/mongodb
+    mode: 0644
+    force: no
+
+- name: Create the repository for mongodb
+  copy: src=mongodb-org-3.6.repo dest=/etc/yum.repos.d/mongodb-org-3.6.repo
+
+- name: Install the mongodb package
+  yum: name={{ item }} state=present
+  with_items:
+#   - python-pip
+   - policycoreutils-python
+   - mongodb-org-mongos-{{mongodb_version}}
+   - mongodb-org-shell-{{mongodb_version}}
+   - mongodb-org-server-{{mongodb_version}}
+
+#- name: Speed pip by tsinghua mirror
+#  copy: src=pip.conf dest=/etc/pip.conf
+
+#- name: Install the latest pymongo package
+#  pip: name={{item}} state=latest
+#  with_items:
+#   - pip
+
+
+#- name: Enable port On SELinux
+#  seport:
+#    ports: "2700-2703,{{mongos_port}},{{mongoc_port}}"
+#    proto: tcp
+#    setype: mongod_port_t
+#    state: present
+#  when: ansible_selinux is defined and ansible_selinux != False and ansible_selinux.status == 'enabled'
+
+- name: Create the mongod user
+  user: name=mongod comment="MongoD"
+
+- name: Create the data directory for the namenode metadata
+  file: path={{ mongodb_datadir_prefix }} owner=mongod group=mongod state=directory setype=mongod_var_lib_t recurse=true
+
+- name: create log directory for mongodb
+  file: path={{ mongodb_logdir_prefix }} state=directory owner=mongod group=mongod setype=mongod_log_t recurse=true
+
+- name: create run directory for mongodb
+  file: path={{ mongodb_piddir_prefix }} state=directory owner=mongod group=mongod setype=mongod_var_run_t seuser=system_u recurse=true
+
+- name: Create the mongodb configuration file
+  template: src=mongod.conf.j2 dest=/etc/mongod.conf
+
+- name: Copy the keyfile for authentication
+  copy:
+    src: mongodb.key
+    dest: "{{ mongodb_datadir_prefix }}/mongodb.key"
+    owner: mongod
+    group: mongod
+    mode: 0400
+    setype: mongod_var_lib_t
+
+- name: Add nofile soft nofile limit for the user mongod
+  pam_limits:
+    domain: mongod
+    limit_type: soft
+    limit_item: nofile
+    value: 64000
+
+- name: Add nofile hard nofile limit for the user mongod
+  pam_limits:
+    domain: mongod
+    limit_type: soft
+    limit_item: nofile
+    value: 64000
+
+- name: Add nofile soft nproc limit for the user mongod
+  pam_limits:
+    domain: mongod
+    limit_type: soft
+    limit_item: nproc
+    value: 32000
+
+- name: Add nofile hard nproc limit for the user mongod
+  pam_limits:
+    domain: mongod
+    limit_type: hard
+    limit_item: nproc
+    value: 32000
+
+- name: modify 'transparent_hugepage' to never
+  shell: echo never > /sys/kernel/mm/transparent_hugepage/enabled
+
+- name: modify 'transparent_hugepage/defrag' to never
+  shell: echo never > /sys/kernel/mm/transparent_hugepage/defrag
+
+- name: restart mongod
+  hosts: all !mongos_servers 
+  shell: service mongod restart
+

@@ -1,0 +1,20 @@
+---
+# This role deploys the mongod processes and sets up the replication set.
+
+- name: Create the mongodb configuration file
+  template: src=mongod.conf.j2 dest=/etc/mongod.conf
+
+- name: Create the file to initialize the mongod replica set
+  template: src=repset_init.j2 dest=/tmp/repset_init.js mode=0655
+
+- name: Pause for a while
+  pause: seconds=10
+
+- name: restart mongod
+  command: service mongod restart
+
+- name: Initialize the replication set
+  #hosts: mongo_servers_shard1_replication[0]
+  shell: /usr/bin/mongo "localhost:{{ mongod_port }}/admin" /tmp/repset_init.js
+  #when: "{{inventory_hostname == groups['mongo_servers_shard1_replication'][0]['inventory_hostname']}}"
+  msg: inventory_hostname-- {{inventory_hostname}},  'mongo_servers_shard1_replication'][{{loop.index0}}]

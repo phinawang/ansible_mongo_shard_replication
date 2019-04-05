@@ -1,0 +1,24 @@
+---
+# This playbook  deploys the mongos servers
+
+
+#- name: Create the mongodb startup file
+#  template: src=mongoc.service dest=/etc/systemd/system/mongoc.service mode=0644 seuser=system_u
+
+- name: Create the mongos configuration file
+  template: src=mongos.conf.j2 dest=/etc/mongod.conf
+
+- name: Pause for a while
+  pause: seconds=10
+
+- name: Create the file to initialize the mongod Shard
+  template: src=shard_init.j2 dest=/tmp/shard_init.js  mode=0655
+
+- name: Pause for a while
+  pause: seconds=10
+
+- name: start mongos
+  command: mongos --config /etc/mongods --fork
+
+- name: Add the shard to the mongos
+  shell: /usr/bin/mongo localhost:{{ mongos_port }}/admin /tmp/shard_init.js
